@@ -1,0 +1,6 @@
+services:
+  env:
+    image: "ubuntu:latest"
+    entrypoint:
+    - env
+
