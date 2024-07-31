@@ -1,6 +1,41 @@
+version: '3.7'
 services:
-  env:
-    image: "ubuntu:latest"
-    entrypoint:
-    - env
+
+  cells:
+    image: pydio/cells:${CELLS_TAG}
+    restart: unless-stopped
+    ports: 
+     - ${CELLS_PORT}:8080
+    env_file:
+      - .env
+    environment:
+      - CELLS_LOG_LEVEL=production
+    volumes:
+      - ${CELLS_DATA}:/var/cells/data
+      - ${CELLS_WORKDIR}:/var/cells
+
+  mysql:
+    image: mysql:${MYSQL_TAG}
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: cells
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    volumes:
+      - ${MYSQL_DIR}:/var/lib/mysql
+
+  collabora:
+    image: collabora/code:24.04.3.1.1
+    ports:
+      - 9980:9980
+    environment:
+      - extra_params=-o:tls.enable=false
+      - domain=192.168.1.188
+    restart: always
+    cap_add:
+      - MKNOD
 
